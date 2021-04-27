@@ -1,0 +1,36 @@
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      ringBufferSizeInClosedState: 4
+      ringBufferSizeInHalfOpenState: 2
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 20s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+      ignoreExceptions:
+        - com.resilience4j.exception.BusinessException
+        - feign.FeignException
+      recordExceptions:
+        - java.net.SocketTimeoutException
+        - java.net.ConnectException
+    shared:
+      registerHealthIndicator: true
+      ringBufferSizeInClosedState: 4
+      ringBufferSizeInHalfOpenState: 2
+      waitDurationInOpenState: 20s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+      ignoreExceptions:
+        - com.resilience4j.exception.BusinessException
+  instances:
+    callOtherService:
+      baseConfig: default
+      ringBufferSizeInClosedState: 4
+      registerHealthIndicator: true
+      ignoreExceptions:
+        # We need to ignore 4xx errors returned by the server as they are valid business case.
+        - org.springframework.web.client.HttpClientErrorException
+      recordExceptions:
+        # We need to record all http errors
+        - org.springframework.web.client.RestClientException
